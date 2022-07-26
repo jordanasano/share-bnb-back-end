@@ -25,22 +25,49 @@ app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
-############# LISTINGS #########################################################
+
+
+@app.before_request
+def get_user_id():
+    """If token sent in request, get user id from token and save in g"""
+
+
+######## LISTINGS #############################################################
+
 @app.get('/listings')
 def get_listings():
-    """ Takes no input. 
-        Returns:
-            [
-                {
-                    owner, 
-                    title, 
-                    description, 
-                    price, 
-                    location, 
-                    images: [{path, description}, ...]
-                }, 
-                ...
-            ]
+    """Gets all listings.
+        Returns JSON: list of 'listing' dicts
+        { owner, title, description, price, location, images: [
+            { path, description } ]
+        }
     """
+    #TODO:
+    return "listings returned"
+
+@app.post('/listings')
+def add_listing():
+    """Add new listing using user id saved in g as owner_id.
+
+        { title, description, price, location, [ { image_file, description }, ... ] }
+
+        => Returns 201 and JSON:
+        TODO: what to return to show it was added?
+        { id, status: 201, title }
+    """
+    #TODO:
+    return "listing returned"
+
+
+@app.get('/listings/<int:listing_id>')
+def get_listing(listing_id):
+    """Get listing based on id in param.
+
+        Returns JSON:
+        { title, description, price, location, [ { path, description }, ... ] }
+
+    """
+    #TODO:
+    return "listing returned"
 
 connect_db(app)
