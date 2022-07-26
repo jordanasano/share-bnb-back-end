@@ -82,7 +82,7 @@ class Message(db.Model):
 class Listing(db.Model):
     """An individual listing."""
 
-    __tablename__ = 'messages'
+    __tablename__ = 'listings'
 
     id = db.Column(
         db.Integer,
@@ -91,7 +91,7 @@ class Listing(db.Model):
 
     owner_id = db.Column(
         db.Integer,
-        db.ForeignKey('owners.id', ondelete='CASCADE'),
+        db.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
     )
 
@@ -114,6 +114,31 @@ class Listing(db.Model):
         db.Text,
     )
 
+class Listing_Images(db.Model):
+    """An individual image for a listing."""
+
+    __tablename__ = 'listing_images'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
+
+    listing_id = db.Column(
+        db.Integer,
+        db.ForeignKey('listings.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
+    description = db.Column(
+        db.Text,
+    )
+
+    path = db.Column(
+        db.Text,
+        nullable=False,
+        unique=True
+    )
 
 
 def connect_db(app):
