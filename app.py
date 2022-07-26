@@ -25,4 +25,22 @@ app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
+############# LISTINGS #########################################################
+@app.get('/listings')
+def get_listings():
+    """ Takes no input. 
+        Returns:
+            [
+                {
+                    owner, 
+                    title, 
+                    description, 
+                    price, 
+                    location, 
+                    images: [{path, description}, ...]
+                }, 
+                ...
+            ]
+    """
+
 connect_db(app)
