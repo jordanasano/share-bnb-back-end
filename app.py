@@ -7,7 +7,7 @@ from flask import Flask, jsonify, render_template, request, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import db, connect_db
+from models import db, connect_db, User, Message, Listing
 
 
 load_dotenv()

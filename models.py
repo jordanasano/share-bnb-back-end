@@ -8,57 +8,6 @@ from flask_sqlalchemy import SQLAlchemy
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
-class User(db.Model):
-    """User in the system."""
-
-    __tablename__ = 'users'
-
-    id = db.Column(
-        db.Integer,
-        primary_key=True,
-    )
-
-    username = db.Column(
-        db.String(20),
-        nullable=False,
-        unique=True,
-    )
-
-    password = db.Column(
-        db.Text,
-        nullable=False,
-    )
-
-    first_name = db.Column(
-        db.String(40),
-        nullable=False,
-    )
-
-    last_name = db.Column(
-        db.String(40),
-        nullable=False,
-    )
-
-    @classmethod
-    def signup(cls, username, password, first_name, last_name):
-        """Sign up user.
-
-        Hashes password and adds user to system.
-        """
-
-        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
-
-        user = User(
-            username=username,
-            password=hashed_pwd,
-            first_name=first_name,
-            last_name=last_name,
-        )
-
-        db.session.add(user)
-        return user
-
-
 class Message(db.Model):
     """An individual message."""
 
@@ -103,15 +52,6 @@ class Message(db.Model):
         nullable=False,
     )
 
-    followers = db.relationship(
-        "User",
-        secondary="follows",
-        primaryjoin=(Follows.user_being_followed_id == id),
-        secondaryjoin=(Follows.user_following_id == id),
-        backref="following",
-    )
-
-
 class Listing(db.Model):
     """An individual listing."""
 
@@ -150,6 +90,72 @@ class Listing(db.Model):
         nullable=False,
     )
 
+
+class User(db.Model):
+    """User in the system."""
+
+    __tablename__ = 'users'
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True,
+    )
+
+    username = db.Column(
+        db.String(20),
+        nullable=False,
+        unique=True,
+    )
+
+    password = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    first_name = db.Column(
+        db.String(40),
+        nullable=False,
+    )
+
+    last_name = db.Column(
+        db.String(40),
+        nullable=False,
+    )
+
+    messages_sent = db.relationship(
+        "Message",
+        primaryjoin=(Message.from_user_id == id)
+    )
+
+    messages_received = db.relationship(
+        "Message",
+        primaryjoin=(Message.to_user_id == id)
+    )
+
+    listings = db.relationship(
+        "Listing",
+        primaryjoin=(Listing.owner_id == id)
+    )
+
+    @classmethod
+    def signup(cls, username, password, first_name, last_name):
+        """Sign up user.
+
+        Hashes password and adds user to system.
+        """
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User(
+            username=username,
+            password=hashed_pwd,
+            first_name=first_name,
+            last_name=last_name,
+        )
+
+        db.session.add(user)
+        return user
+
 class ListingImage(db.Model):
     """An individual image for a listing."""
 
@@ -181,3 +187,4 @@ def connect_db(app):
 
     db.app = app
     db.init_app(app)
+
