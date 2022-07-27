@@ -60,6 +60,11 @@ class BaseViewTestCase(TestCase):
         db.session.add_all([l1, l2, l3])
         db.session.commit()
 
+        li1 = ListingImage(
+            listing_id=l1.id,
+            path="https://listing_image_1.jpg"
+        )
+
         m1 = Message(
             from_user_id=u1.id,
             to_user_id=u2.id,
@@ -74,7 +79,7 @@ class BaseViewTestCase(TestCase):
             text='text2',
             listing_id=l1.id
         )
-        db.session.add_all([m1, m2])
+        db.session.add_all([m1, m2, li1])
         db.session.commit()
 
         #FIXME: save shit in self
@@ -89,6 +94,8 @@ class BaseViewTestCase(TestCase):
         self.m1 = m1
         self.m2 = m2
 
+        self.li1 = li1
+
         self.client = app.test_client()
 
 
@@ -102,12 +109,24 @@ class ListingsViewsTestCase(BaseViewTestCase):
         with self.client as c:
 
             resp = c.get("/listings")
-            # print("AKWJDHKAJWDHKWJDHKJAWDH", resp.get_json())
-            # print("AKJWDHKAWJHDWD", resp.json["listings"])
+
             self.assertEqual(resp.status_code, 200)
             self.assertIn(self.l1, resp.json["listings"])
             self.assertIn(self.l2, resp.json["listings"])
 
+    #TODO:
+    # def test_add_listing(self):
+    #     with self.client as c:
+    #         # { title, description, price, location, [ image_file , ... ] }
+    #         resp = c.post(
+    #             "/listings",
+    #             data={
+
+    #             })
+
+    #         self.assertEqual(resp.status_code, 201)
+    #         self.assertIn(self.l1, resp.json["listings"])
+    #         self.assertIn(self.l2, resp.json["listings"])
 # class MessagesViewsTestCase(BaseViewTestCase):
 #     """Tests for all '/messages' routes."""
 

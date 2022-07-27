@@ -90,6 +90,10 @@ class Listing(db.Model):
         nullable=False,
     )
 
+    images = db.relationship(
+        "ListingImage",
+        backref="listing"
+    )
 
 class User(db.Model):
     """User in the system."""
