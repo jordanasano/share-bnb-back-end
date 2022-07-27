@@ -39,6 +39,26 @@ class User(db.Model):
         nullable=False,
     )
 
+    @classmethod
+    def signup(cls, username, password, first_name, last_name):
+        """Sign up user.
+
+        Hashes password and adds user to system.
+        """
+
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User(
+            username=username,
+            password=hashed_pwd,
+            first_name=first_name,
+            last_name=last_name,
+        )
+
+        db.session.add(user)
+        return user
+
+
 class Message(db.Model):
     """An individual message."""
 
@@ -82,6 +102,15 @@ class Message(db.Model):
         db.ForeignKey('listings.id', ondelete='CASCADE'),
         nullable=False,
     )
+
+    followers = db.relationship(
+        "User",
+        secondary="follows",
+        primaryjoin=(Follows.user_being_followed_id == id),
+        secondaryjoin=(Follows.user_following_id == id),
+        backref="following",
+    )
+
 
 class Listing(db.Model):
     """An individual listing."""
