@@ -1,7 +1,6 @@
 """SQLAlchemy models for ShareB&B."""
 
 from datetime import datetime
-from unicodedata import decimal
 
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
@@ -72,12 +71,17 @@ class Message(db.Model):
         nullable=False,
     )
 
+    to_user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+
     listing_id = db.Column(
         db.Integer,
         db.ForeignKey('listings.id', ondelete='CASCADE'),
         nullable=False,
     )
-
 
 class Listing(db.Model):
     """An individual listing."""
@@ -100,8 +104,9 @@ class Listing(db.Model):
         nullable=False,
     )
 
-    price = db.Column(
-        db.Numeric(decimal_return_scale=2),
+    price_per_day = db.Column(
+        # will be python Decimal type
+        db.Numeric,
         nullable=False,
     )
 
@@ -109,12 +114,14 @@ class Listing(db.Model):
         db.String(50),
         nullable=False,
     )
+    #TODO: categories?
 
     description = db.Column(
         db.Text,
+        nullable=False,
     )
 
-class Listing_Images(db.Model):
+class ListingImage(db.Model):
     """An individual image for a listing."""
 
     __tablename__ = 'listing_images'
@@ -132,6 +139,7 @@ class Listing_Images(db.Model):
 
     description = db.Column(
         db.Text,
+        nullable=False,
     )
 
     path = db.Column(

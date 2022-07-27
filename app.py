@@ -38,9 +38,9 @@ def get_user_id():
 def get_listings():
     """Gets all listings.
         Returns JSON: list of 'listing' dicts
-        { id, owner, title, description, price, location, images: [
+        [{ id, owner, title, description, price, location, images: [
             { path, description } ]
-        }
+        }]
     """
     #TODO:
     return "listings returned"
@@ -77,9 +77,9 @@ def get_listing(listing_id):
 ######## MESSAGES #############################################################
 @app.get('/messages')
 def get_messages():
-    """Gets all messages for current user using user id saved in g 
+    """Gets all messages for current user using user id saved in g
         Returns JSON: list of 'messages' dicts
-        [ { id, title, text, timestamp, listing_title }, ... ]
+        [ { id, title, text, timestamp, from_user, to_user, listing_title }, ... ]
     """
     #TODO:
     return "messages returned"
@@ -106,7 +106,7 @@ def get_message(message_id):
     """Get message based on id in param.
 
         Returns JSON:
-        { id, title, text, timestamp, listing_title }
+        { id, title, text, timestamp, from_user, to_user, listing_title }
 
     """
     #TODO:
@@ -115,7 +115,7 @@ def get_message(message_id):
 ######## USER AUTH #############################################################
 @app.post('/login')
 def login():
-    """ Handle user login 
+    """ Handle user login TODO: takes
         Returns JSON: { token }
     """
     #TODO:
@@ -123,7 +123,7 @@ def login():
 
 @app.post('/signup')
 def signup():
-    """ Handle user signup 
+    """ Handle user signup TODO: takes
         Returns JSON: { token }
     """
     #TODO:
