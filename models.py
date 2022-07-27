@@ -137,11 +137,6 @@ class ListingImage(db.Model):
         nullable=False,
     )
 
-    description = db.Column(
-        db.Text,
-        nullable=False,
-    )
-
     path = db.Column(
         db.Text,
         nullable=False,

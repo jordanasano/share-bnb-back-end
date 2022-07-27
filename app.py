@@ -25,9 +25,9 @@ app.config['SQLALCHEMY_ECHO'] = False
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
-s3 = boto3.resource('s3')
 
 ######## TESTING AWS ###########################################################
+s3 = boto3.resource('s3')
 
 AWS_BUCKET = os.environ['AWS_BUCKET']
 @app.get('/')
@@ -36,11 +36,18 @@ def test1():
 
 @app.post('/test')
 def test():
-    file = request.form['test']
-    # breakpoint()
-    url = s3.Bucket(AWS_BUCKET).put_object(Key=file, Body=file)
+    #TODO: can't just access one file, need all in a list
+    file = request.files['test']
+    # TODO: loop over request.files to store each photo in a bucket
+    #       make image url from bucket, put url in another list variable for all paths.
+    #       save each in list to listing_images
+    url = s3.Bucket(AWS_BUCKET).put_object(Key=file.filename, Body=file)
     print('output is asduisadouiasidsao', url)
     return 'success'
+
+
+
+
 @app.before_request
 def get_user_id():
     """If token sent in request, get user id from token and save in g"""
@@ -52,9 +59,7 @@ def get_user_id():
 def get_listings():
     """Gets all listings.
         Returns JSON: list of 'listing' dicts
-        [{ id, owner, title, description, price, location, images: [
-            { path, description } ]
-        }]
+        [ { id, owner, title, description, price, location, images: [ path ] } ]
     """
     #TODO:
     return "listings returned"
@@ -63,7 +68,7 @@ def get_listings():
 def add_listing():
     """Add new listing using user id saved in g as owner_id.
 
-        { title, description, price, location, [ { image_file, description }, ... ] }
+        { title, description, price, location, [ image_file , ... ] }
 
         => If successful, returns 201 and JSON:
         TODO: what to return to show it was added?
@@ -81,7 +86,7 @@ def get_listing(listing_id):
     """Get listing based on id in param.
 
         Returns JSON:
-        { id, title, description, price, location, [ { path, description }, ... ] }
+        { id, title, description, price, location, [ path, ... ] }
 
     """
     #TODO:
