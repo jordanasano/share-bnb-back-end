@@ -62,7 +62,7 @@ def get_listings():
         [ { id, owner, title, description, price, location, images: [ path ] } ]
     """
     #TODO:
-    return "listings returned"
+    return jsonify({"listings": ["listings returned", 42]})
 
 @app.post('/listings')
 def add_listing():
