@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
+import boto3
 
-from flask import Flask, request, g
+from flask import Flask, jsonify, render_template, request, g
 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
@@ -24,9 +25,22 @@ app.config['SQLALCHEMY_ECHO'] = False
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
+s3 = boto3.resource('s3')
 
+######## TESTING AWS ###########################################################
 
+AWS_BUCKET = os.environ['AWS_BUCKET']
+@app.get('/')
+def test1():
+    return render_template('index.html')
 
+@app.post('/test')
+def test():
+    file = request.form['test']
+    # breakpoint()
+    url = s3.Bucket(AWS_BUCKET).put_object(Key=file, Body=file)
+    print('output is asduisadouiasidsao', url)
+    return 'success'
 @app.before_request
 def get_user_id():
     """If token sent in request, get user id from token and save in g"""
