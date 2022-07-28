@@ -2,6 +2,7 @@ import os
 from re import L
 from dotenv import load_dotenv
 import boto3
+import uuid
 
 from flask import Flask, jsonify, render_template, request, g
 
@@ -113,15 +114,16 @@ def add_listing():
     db.session.add(listing)
     db.session.commit()
 
-    image_urls = []
     base_url = f'https://{AWS_BUCKET}.s3.us-west-1.amazonaws.com/'
 
     for file in image_files:
-        print(file)
-        s3.Bucket(AWS_BUCKET).put_object(Key=file.filename, Body=file)
-        
-        image_url = base_url + file.filename
-        image_urls.append(image_url)
+
+        image_uuid = str(uuid.uuid4())
+
+        s3.Bucket(AWS_BUCKET).put_object(Key=(image_uuid + file.filename), Body=file)
+
+
+        image_url = base_url + image_uuid + file.filename
 
         listing_image = ListingImage(
             listing_id=listing.id,
@@ -212,7 +214,10 @@ def login():
 
     if user:
         db.session.commit()
-        token = create_access_token(identity=user.id)
+        #TODO: figure out expiration time
+        token = create_access_token(
+            identity=user.id,
+            expires_delta=False)
 
         return jsonify(token=token)
     else:
@@ -240,7 +245,10 @@ def signup():
             last_name=user_data["last_name"],
         )
         db.session.commit()
-        token = create_access_token(identity=user.id)
+        #TODO: figure out expiration time
+        token = create_access_token(
+            identity=user.id,
+            expires_delta=False)
 
         return jsonify(token=token)
     except:
