@@ -62,7 +62,12 @@ def get_listings():
         Returns JSON: list of 'listing' dicts
         [ { id, owner, title, description, price, location, images: [ path ] } ]
     """
+
     listings = Listing.query.all()
+
+    if not listings:
+        return jsonify({ "listings": listings })
+
     serialized_listings = [listing.serialize() for listing in listings]
 
     return jsonify({ "listings": serialized_listings })
