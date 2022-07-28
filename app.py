@@ -5,11 +5,12 @@ import boto3
 
 from flask import Flask, jsonify, render_template, request, g
 
-#TODO:
+# TODO:
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
+from flask_jwt_extended import verify_jwt_in_request
 
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
@@ -37,35 +38,30 @@ app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
-#FIXME: Unsure if this is the right route for accessing it
+# FIXME: Unsure if this is the right route for accessing it
 SECRET_KEY = os.environ['SECRET_KEY']
 
 ######## TESTING AWS ###########################################################
 s3 = boto3.resource('s3')
 
 AWS_BUCKET = os.environ['AWS_BUCKET']
+
+
 @app.get('/')
 def test1():
     return render_template('index.html')
 
+
 @app.post('/test')
 def test():
-    #TODO: can't just access one file, need all in a list
+    # TODO: can't just access one file, need all in a list
     file = request.files['test']
-    print(request.form)
+    # print(request.form)
     # TODO: loop over request.files to store each photo in a bucket
     #       make image url from bucket, put url in another list variable for all paths.
     #       save each in list to listing_images
     url = s3.Bucket(AWS_BUCKET).put_object(Key=file.filename, Body=file)
-    print('output is asduisadouiasidsao', url)
     return 'success'
-
-
-
-
-@app.before_request
-def get_user_id():
-    """If token sent in request, get user id from token and save in g"""
 
 
 ######## LISTINGS #############################################################
@@ -80,17 +76,19 @@ def get_listings():
     listings = Listing.query.all()
 
     if not listings:
-        return jsonify({ "listings": listings })
+        return jsonify({"listings": listings})
 
     serialized_listings = [listing.serialize() for listing in listings]
 
-    return jsonify({ "listings": serialized_listings })
+    return jsonify({"listings": serialized_listings})
 
 @app.post('/listings')
+@jwt_required()
 def add_listing():
     """Add new listing using user id saved in g as owner_id.
+        Takes { title, description, price, location, [ image_file , ... ] }
 
-        { title, description, price, location, [ image_file , ... ] }
+        Requires Bearer token in header.
 
         => If successful, returns 201 and JSON:
         TODO: what to return to show it was added?
@@ -99,7 +97,16 @@ def add_listing():
         If error, returns 400 and JSON:
         { errors, status: 400 }
     """
-    #TODO:
+    user_id = get_jwt_identity()
+
+    # TODO: get token out of header, verify to get user id
+    #   make Listing using user's id as owner_id
+    #   AWS each image file and buil url for each
+    #   make ListingImage for each url using Listing's id as listing_id
+    image_files = request.files
+    listing_data = request.form
+
+
     return "listing returned"
 
 
@@ -116,9 +123,9 @@ def get_listing(listing_id):
     listing = Listing.query.get_or_404(listing_id)
     serialized_listing = listing.serialize()
 
-    return jsonify({ "listing": serialized_listing })
+    return jsonify({"listing": serialized_listing})
 
-
+#TODO:
 ######## MESSAGES #############################################################
 @app.get('/messages')
 def get_messages():
@@ -126,8 +133,9 @@ def get_messages():
         Returns JSON: list of 'messages' dicts
         [ { id, title, text, timestamp, from_user, to_user, listing_title }, ... ]
     """
-    #TODO:
+    # TODO:
     return "messages returned"
+
 
 @app.post('/messages')
 def add_message():
@@ -142,7 +150,7 @@ def add_message():
         If error, returns 400 and JSON:
         { errors, status: 400 }
     """
-    #TODO:
+    # TODO:
     return "message returned"
 
 
@@ -154,27 +162,50 @@ def get_message(message_id):
         { id, title, text, timestamp, from_user, to_user, listing_title }
 
     """
-    #TODO:
+    # TODO:
     return "message returned"
 
 ######## USER AUTH #############################################################
+
+
 @app.post('/login')
 def login():
-    """ Handle user login TODO: takes
+    """ Handle user login
+        Takes JSON: { username, password }
+
         Returns JSON: { token }
+
+        If unsuccessful, returns JSON: { "error": 'Invalid credentials' }
+        with 400 status code.
     """
-    #TODO:
-    return 'login_token'
+
+    user_data = request.json
+
+
+    user = User.authenticate(
+        user_data["username"],
+        user_data["password"])
+
+    if user:
+        db.session.commit()
+        token = create_access_token(identity=user.id)
+
+        return jsonify(token=token)
+    else:
+        return jsonify({"error": 'Invalid credentials'}), 400
+
 
 @app.post('/signup')
 def signup():
-    """ Handle user signup 
+    """ Handle user signup
         Takes JSON: { username, password, first_name, last_name }
 
         Returns JSON: { token }
+
         If unsuccessful, returns JSON: { "error": 'Invalid user profile input' }
         with 400 status code.
     """
+
     user_data = request.json
 
     try:
@@ -186,10 +217,10 @@ def signup():
         )
         db.session.commit()
         token = create_access_token(identity=user.id)
-        
+
         return jsonify(token=token)
     except:
-        return jsonify({ "error": 'Invalid user profile input' }), 400
+        return jsonify({"error": 'Invalid user profile input'}), 400
 
 
 connect_db(app)
