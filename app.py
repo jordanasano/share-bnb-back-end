@@ -5,6 +5,12 @@ import boto3
 
 from flask import Flask, jsonify, render_template, request, g
 
+#TODO:
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import JWTManager
+
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
@@ -17,6 +23,10 @@ CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 
+# Setup the Flask-JWT-Extended extension TODO:
+app.config["JWT_SECRET_KEY"] = os.environ["SECRET_KEY"]  # Change this!
+jwt = JWTManager(app)
+
 # Get DB_URI from environ variable (useful for production/testing) or,
 # if not set there, use development local db.
 app.config['SQLALCHEMY_DATABASE_URI'] = (
@@ -26,6 +36,9 @@ app.config['SQLALCHEMY_ECHO'] = False
 # app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
+
+#FIXME: Unsure if this is the right route for accessing it
+SECRET_KEY = os.environ['SECRET_KEY']
 
 ######## TESTING AWS ###########################################################
 s3 = boto3.resource('s3')
@@ -39,6 +52,7 @@ def test1():
 def test():
     #TODO: can't just access one file, need all in a list
     file = request.files['test']
+    print(request.form)
     # TODO: loop over request.files to store each photo in a bucket
     #       make image url from bucket, put url in another list variable for all paths.
     #       save each in list to listing_images
@@ -154,11 +168,28 @@ def login():
 
 @app.post('/signup')
 def signup():
-    """ Handle user signup TODO: takes
+    """ Handle user signup 
+        Takes JSON: { username, password, first_name, last_name }
+
         Returns JSON: { token }
+        If unsuccessful, returns JSON: { "error": 'Invalid user profile input' }
+        with 400 status code.
     """
-    #TODO:
-    return 'signup_token'
+    user_data = request.json
+
+    try:
+        user = User.signup(
+            username=user_data["username"],
+            password=user_data["password"],
+            first_name=user_data["first_name"],
+            last_name=user_data["last_name"],
+        )
+        db.session.commit()
+        token = create_access_token(identity=user.id)
+        
+        return jsonify(token=token)
+    except:
+        return jsonify({ "error": 'Invalid user profile input' }), 400
 
 
 connect_db(app)
