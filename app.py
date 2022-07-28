@@ -1,4 +1,5 @@
 import os
+from re import L
 from dotenv import load_dotenv
 import boto3
 
@@ -61,8 +62,10 @@ def get_listings():
         Returns JSON: list of 'listing' dicts
         [ { id, owner, title, description, price, location, images: [ path ] } ]
     """
-    #TODO:
-    return jsonify({"listings": ["listings returned", 42]})
+    listings = Listing.query.all()
+    serialized_listings = [listing.serialize() for listing in listings]
+
+    return jsonify({ "listings": serialized_listings })
 
 @app.post('/listings')
 def add_listing():
@@ -88,9 +91,13 @@ def get_listing(listing_id):
         Returns JSON:
         { id, title, description, price, location, [ path, ... ] }
 
+        if no listing with that id is found, gives a 404
+
     """
-    #TODO:
-    return "listing returned"
+    listing = Listing.query.get_or_404(listing_id)
+    serialized_listing = listing.serialize()
+
+    return jsonify({ "listing": serialized_listing })
 
 
 ######## MESSAGES #############################################################

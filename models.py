@@ -95,6 +95,19 @@ class Listing(db.Model):
         backref="listing"
     )
 
+    def serialize(self):
+        """Serialize to dictionary."""
+
+        return {
+            "id": self.id,
+            "owner_id": self.owner_id,
+            "title": self.title,
+            "price_per_day": self.price_per_day,
+            "location": self.location,
+            "description": self.description,
+            "images": [image.serialize() for image in self.images]
+        }
+
 class User(db.Model):
     """User in the system."""
 
@@ -181,6 +194,15 @@ class ListingImage(db.Model):
         nullable=False,
         unique=True
     )
+
+    def serialize(self):
+        """Serialize to dictionary."""
+
+        return {
+            "id": self.id,
+            "listing_id": self.listing_id,
+            "path": self.path
+        }
 
 
 def connect_db(app):

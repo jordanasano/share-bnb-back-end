@@ -107,12 +107,28 @@ class ListingsViewsTestCase(BaseViewTestCase):
 
     def test_get_listings(self):
         with self.client as c:
-
             resp = c.get("/listings")
 
             self.assertEqual(resp.status_code, 200)
-            self.assertIn(self.l1, resp.json["listings"])
-            self.assertIn(self.l2, resp.json["listings"])
+            self.assertEqual('listing1', resp.json["listings"][0]["title"])
+            self.assertEqual(3, len(resp.json["listings"]))
+            # TODO: jsonify gets rid of Decimal(), but .serialize() does not
+            # self.assertIn(self.l1.serialize(), resp.json["listings"])
+            # self.assertIn(self.l2.serialize(), resp.json["listings"])
+
+    def test_get_listing_by_id(self):
+        with self.client as c:
+            resp = c.get(f'/listings/{self.l1.id}')
+            print("specific listing id gets us =", resp.json)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(self.l1.id, resp.json["listing"]["id"])
+
+            resp2 = c.get(f'/listings/p')
+            print("specific listing id gets us =", resp2)
+
+            self.assertEqual(resp2.status_code, 404)
+            self.assertEqual(None, resp2.json)
 
     #TODO:
     # def test_add_listing(self):
