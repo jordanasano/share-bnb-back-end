@@ -60,6 +60,7 @@ class Listing(db.Model):
     id = db.Column(
         db.Integer,
         primary_key=True,
+        autoincrement=True
     )
 
     owner_id = db.Column(
@@ -107,6 +108,7 @@ class Listing(db.Model):
             "description": self.description,
             "images": [image.serialize() for image in self.images]
         }
+    
 
 class User(db.Model):
     """User in the system."""
@@ -212,8 +214,7 @@ class ListingImage(db.Model):
 
     path = db.Column(
         db.Text,
-        nullable=False,
-        unique=True
+        nullable=False
     )
 
     def serialize(self):

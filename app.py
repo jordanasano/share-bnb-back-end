@@ -15,7 +15,7 @@ from flask_jwt_extended import verify_jwt_in_request
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from models import db, connect_db, User, Message, Listing
+from models import ListingImage, db, connect_db, User, Message, Listing
 
 
 load_dotenv()
@@ -99,15 +99,39 @@ def add_listing():
     """
     user_id = get_jwt_identity()
 
-    # TODO: get token out of header, verify to get user id
-    #   make Listing using user's id as owner_id
-    #   AWS each image file and buil url for each
-    #   make ListingImage for each url using Listing's id as listing_id
-    image_files = request.files
+    files_data = request.files
+    image_files = [files_data[file_name] for file_name in files_data]
     listing_data = request.form
 
+    listing = Listing(
+        owner_id=user_id,
+        title=listing_data["title"],
+        price_per_day=listing_data["price_per_day"],
+        location=listing_data["location"],
+        description=listing_data["description"]
+    )
+    db.session.add(listing)
+    db.session.commit()
 
-    return "listing returned"
+    image_urls = []
+    base_url = f'https://{AWS_BUCKET}.s3.us-west-1.amazonaws.com/'
+
+    for file in image_files:
+        print(file)
+        s3.Bucket(AWS_BUCKET).put_object(Key=file.filename, Body=file)
+        
+        image_url = base_url + file.filename
+        image_urls.append(image_url)
+
+        listing_image = ListingImage(
+            listing_id=listing.id,
+            path=image_url
+        )
+
+        db.session.add(listing_image)
+        db.session.commit()
+
+    return jsonify(listing=listing.serialize())
 
 
 @app.get('/listings/<int:listing_id>')

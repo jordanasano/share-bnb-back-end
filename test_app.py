@@ -108,7 +108,7 @@ class ListingsViewsTestCase(BaseViewTestCase):
     def test_get_listings(self):
         with self.client as c:
             resp = c.get("/listings")
-
+            # breakpoint()
             self.assertEqual(resp.status_code, 200)
             self.assertEqual('listing1', resp.json["listings"][0]["title"])
             self.assertEqual(3, len(resp.json["listings"]))
@@ -119,7 +119,7 @@ class ListingsViewsTestCase(BaseViewTestCase):
     def test_get_listing_by_id(self):
         with self.client as c:
             resp = c.get(f'/listings/{self.l1.id}')
-            print("specific listing id gets us =", resp.json)
+            # print("specific listing id gets us =", resp.json)
 
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(self.l1.id, resp.json["listing"]["id"])
