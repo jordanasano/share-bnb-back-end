@@ -87,23 +87,28 @@ def get_listings():
 @jwt_required()
 def add_listing():
     """Add new listing using user id saved in g as owner_id.
-        Takes { title, description, price, location, [ image_file , ... ] }
+        Takes { title, description, price_per_day, location, [ image_file , ... ] }
 
         Requires Bearer token in header.
 
         => If successful, returns 201 and JSON:
-        TODO: what to return to show it was added?
-        { id, status: 201, title }
 
+        { listing: {
+            id, owner_id, title, description, price_per_day, location, images: [ image , ... ] }
+
+        TODO: add schema for this
         If error, returns 400 and JSON:
         { errors, status: 400 }
     """
+
+    # get id, form data, and files from request
     user_id = get_jwt_identity()
 
     files_data = request.files
     image_files = [files_data[file_name] for file_name in files_data]
     listing_data = request.form
 
+    # create new Listing
     listing = Listing(
         owner_id=user_id,
         title=listing_data["title"],
@@ -114,6 +119,7 @@ def add_listing():
     db.session.add(listing)
     db.session.commit()
 
+    # add each file to AWS S3 and create new ListingImage
     base_url = f'https://{AWS_BUCKET}.s3.us-west-1.amazonaws.com/'
 
     for file in image_files:
@@ -121,7 +127,6 @@ def add_listing():
         image_uuid = str(uuid.uuid4())
 
         s3.Bucket(AWS_BUCKET).put_object(Key=(image_uuid + file.filename), Body=file)
-
 
         image_url = base_url + image_uuid + file.filename
 
@@ -133,7 +138,8 @@ def add_listing():
         db.session.add(listing_image)
         db.session.commit()
 
-    return jsonify(listing=listing.serialize())
+
+    return jsonify(listing=listing.serialize()), 201
 
 
 @app.get('/listings/<int:listing_id>')
