@@ -263,4 +263,20 @@ def signup():
         return jsonify({"error": 'Invalid user profile input'}), 400
 
 
+@app.get('/user')
+@jwt_required()
+def get_user():
+    """Get user details.
+        TODO:
+    """
+
+    # get id, form data, and files from request
+    user_id = get_jwt_identity()
+
+    user = User.query.get_or_404(user_id)
+
+    return jsonify(user=user.serialize())
+
+
+
 connect_db(app)

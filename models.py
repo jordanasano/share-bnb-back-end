@@ -108,7 +108,7 @@ class Listing(db.Model):
             "description": self.description,
             "images": [image.serialize() for image in self.images]
         }
-    
+
 
 class User(db.Model):
     """User in the system."""
@@ -195,6 +195,17 @@ class User(db.Model):
                 return user
 
         return False
+
+    def serialize(self):
+        """Serialize user to dictionary."""
+
+        return {
+            "id": self.id,
+            "username": self.username,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            # "listings": self.listings,
+        }
 
 class ListingImage(db.Model):
     """An individual image for a listing."""
