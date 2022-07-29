@@ -50,21 +50,21 @@ s3 = boto3.resource('s3')
 AWS_BUCKET = os.environ['AWS_BUCKET']
 
 
-@app.get('/')
-def test1():
-    return render_template('index.html')
+# @app.get('/')
+# def test1():
+#     return render_template('index.html')
 
 
-@app.post('/test')
-def test():
-    # TODO: can't just access one file, need all in a list
-    file = request.files['test']
-    # print(request.form)
-    # TODO: loop over request.files to store each photo in a bucket
-    #       make image url from bucket, put url in another list variable for all paths.
-    #       save each in list to listing_images
-    url = s3.Bucket(AWS_BUCKET).put_object(Key=file.filename, Body=file)
-    return 'success'
+# @app.post('/test')
+# def test():
+#     # TODO: can't just access one file, need all in a list
+#     file = request.files['test']
+#     # print(request.form)
+#     # TODO: loop over request.files to store each photo in a bucket
+#     #       make image url from bucket, put url in another list variable for all paths.
+#     #       save each in list to listing_images
+#     url = s3.Bucket(AWS_BUCKET).put_object(Key=file.filename, Body=file)
+#     return 'success'
 
 
 ######## LISTINGS #############################################################
