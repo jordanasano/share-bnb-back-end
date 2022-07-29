@@ -107,9 +107,14 @@ def add_listing():
     user_id = get_jwt_identity()
 
     files_data = request.files
+    print("Files received are =", files_data)
     image_files = [files_data[file_name] for file_name in files_data]
     listing_data = request.form
-
+    # breakpoint()
+    print('image_files =', image_files)
+    print('listing_data =', listing_data)
+    print('user_id =', user_id)
+    # breakpoint()
     # create new Listing
     listing = Listing(
         owner_id=user_id,
@@ -120,13 +125,14 @@ def add_listing():
     )
     db.session.add(listing)
     db.session.commit()
-
+    print('Listing was created! It is =', listing)
     # add each file to AWS S3 and create new ListingImage
     base_url = f'https://{AWS_BUCKET}.s3.us-west-1.amazonaws.com/'
 
     for file in image_files:
 
         image_uuid = str(uuid.uuid4())
+        file.filename = file.filename.replace(' ', '_')
 
         s3.Bucket(AWS_BUCKET).put_object(Key=(image_uuid + file.filename), Body=file)
 
