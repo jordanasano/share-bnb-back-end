@@ -6,6 +6,7 @@ import uuid
 
 from flask import Flask, jsonify, render_template, request, g
 
+from flask_cors import CORS
 # TODO:
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -24,6 +25,7 @@ load_dotenv()
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
+CORS(app)
 
 # Setup the Flask-JWT-Extended extension TODO:
 app.config["JWT_SECRET_KEY"] = os.environ["SECRET_KEY"]  # Change this!
@@ -71,7 +73,7 @@ def test():
 def get_listings():
     """Gets all listings.
         Returns JSON: list of 'listing' dicts
-        [ { id, owner, title, description, price, location, images: [ path ] } ]
+        [ { id, owner, title, description, price_per_day, location, images: [ image , ... ] } ]
     """
 
     listings = Listing.query.all()
