@@ -27,7 +27,7 @@ CURR_USER_KEY = "curr_user"
 app = Flask(__name__)
 CORS(app)
 
-# Setup the Flask-JWT-Extended extension TODO:
+# Setup the Flask-JWT-Extended extension 
 app.config["JWT_SECRET_KEY"] = os.environ["SECRET_KEY"]  # Change this!
 jwt = JWTManager(app)
 
@@ -41,7 +41,6 @@ app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 toolbar = DebugToolbarExtension(app)
 
-# FIXME: Unsure if this is the right route for accessing it
 SECRET_KEY = os.environ['SECRET_KEY']
 
 ######## TESTING AWS ###########################################################
