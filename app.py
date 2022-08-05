@@ -7,7 +7,7 @@ import uuid
 from flask import Flask, jsonify, render_template, request, g
 
 from flask_cors import CORS
-# TODO:
+# FIXME: JWT MANAGER
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import jwt_required
@@ -29,6 +29,7 @@ CORS(app)
 
 # Setup the Flask-JWT-Extended extension 
 app.config["JWT_SECRET_KEY"] = os.environ["SECRET_KEY"]  # Change this!
+#FIXME: JWT MANAGER
 jwt = JWTManager(app)
 
 # Get DB_URI from environ variable (useful for production/testing) or,
@@ -164,6 +165,27 @@ def get_listing(listing_id):
 
     return jsonify({"listing": serialized_listing})
 
+
+@app.delete('/listings/<int:listing_id>')
+def delete_listing(listing_id):
+    """Delete listing based on id in param.
+
+        Returns JSON:
+        {"listing_deleted" : 
+            { id, title, description, price, location, [ path, ... ] }
+
+        if no listing with that id is found, gives a 404
+
+    """
+    listing = Listing.query.get_or_404(listing_id)
+    print("*************************** =",listing)
+    #FIXME: Lazy loading error. It deletes correctly, but throws an error still
+    db.session.delete(listing)
+    db.session.commit()
+    serialized_listing = listing.serialize()
+
+    return jsonify({"listing_deleted": serialized_listing})
+
 #TODO:
 ######## MESSAGES #############################################################
 @app.get('/messages')
@@ -285,3 +307,4 @@ def get_user():
 
 
 connect_db(app)
+

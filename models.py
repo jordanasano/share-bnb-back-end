@@ -93,7 +93,8 @@ class Listing(db.Model):
 
     images = db.relationship(
         "ListingImage",
-        backref="listing"
+        backref="listing",
+        passive_deletes=True
     )
 
     def serialize(self):
@@ -139,6 +140,12 @@ class User(db.Model):
     last_name = db.Column(
         db.String(40),
         nullable=False,
+    )
+
+    is_admin = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
     )
 
     messages_sent = db.relationship(
