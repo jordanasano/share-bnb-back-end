@@ -46,10 +46,7 @@ A Python Flask REST API backend that powers the ShareBNB web application. Hosts 
    ```bash
   DATABASE_URL=your_database
   SECRET_KEY=your_secret_key
-  JWT_SECRET_KEY=your_jwt_secret_key
-  AWS_ACCESS_KEY_ID=your_aws_key
-  AWS_SECRET_ACCESS_KEY=your_aws_secret
-  S3_BUCKET_NAME=your_bucket_name
+  AWS_BUCKET=your_bucket_name
   
   5. Set up your database
      a. If you're using raw SQL or a setup script:
