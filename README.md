@@ -41,20 +41,20 @@ A Python Flask REST API backend that powers the ShareBNB web application. Hosts 
    ```bash
    pip install -r requirements.txt
 
-4. Configure your environment:
+4. Configure your environment:  
    Create a .env file in the root directory:
    ```bash
    DATABASE_URL=your_database
    SECRET_KEY=your_secret_key
    AWS_BUCKET=your_bucket_name
    ```
-5. Set up your database:
-     a. If you're using raw SQL or a setup script:
+5. Set up your database:  
+     a. If you're using raw SQL or a setup script:  
         ```bash
         psql < schema.sql
         ```
    
-     b. Or, if using SQLAlchemy models:
+     b. Or, if using SQLAlchemy models:  
         ```bash
         python
         from app import db
