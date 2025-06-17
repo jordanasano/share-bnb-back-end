@@ -47,23 +47,25 @@ A Python Flask REST API backend that powers the ShareBNB web application. Hosts 
    DATABASE_URL=your_database
    SECRET_KEY=your_secret_key
    AWS_BUCKET=your_bucket_name
-  
+   ```
 5. Set up your database
      a. If you're using raw SQL or a setup script:
         ```bash
         psql < schema.sql
-     
+        ```
+   
      b. Or, if using SQLAlchemy models:
         ```bash
         python
         from app import db
         db.create_all()
-  
-6. Run the development server:
+        ```
+   
+7. Run the development server:
    ```bash
    flask run
    
-7. For production:
+8. For production:
    ```bash
    gunicorn app:app
    
